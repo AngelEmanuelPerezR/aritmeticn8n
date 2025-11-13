@@ -5,9 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Operación aritmética → n8n</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 40px auto; }
-    input, button { padding: 10px; font-size: 16px; }
-    form { display: grid; gap: 12px; }
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 680px;
+      margin: 40px auto;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    form {
+      display: grid;
+      gap: 12px;
+    }
     .msg { margin-top: 10px; }
   </style>
 </head>
@@ -23,7 +33,9 @@
   <div class="msg" id="msg"></div>
 
   <script>
-  const WEBHOOK_URL = "https://emanuelromero10.app.n8n.cloud/webhook/93355005-4d96-4b22-aa33-2a5fd334372d"; // <- pega aquí tu Production URL de n8n
+  // 🔗 Usa el path del Webhook del workflow nuevo
+  // (en tu caso, el webhook del JSON que hicimos es: path = "ai-operation")
+  const WEBHOOK_URL = "https://emanuelromero10.app.n8n.cloud/webhook/ai-operation";
 
   async function getClientIP() {
     // ipify: devuelve { ip: "x.x.x.x" }
@@ -36,8 +48,9 @@
     const client_ip = await getClientIP();
 
     const payload = {
-      expr,                // operación aritmética tal cual la escribió el usuario
-      client_ip,           // IP pública detectada en el navegador
+      // 👇 el workflow espera principalmente `exp`, pero igual acepta expr
+      exp: expr,                // operación aritmética tal cual la escribió el usuario
+      client_ip,                // IP pública detectada en el navegador
       user_agent: navigator.userAgent
     };
 
@@ -62,7 +75,12 @@
     try {
       const expr = document.getElementById("expr").value.trim();
       const data = await submitData(expr);
-      msg.textContent = `Listo ✅ Resultado: ${data?.result ?? "S/R"} · Tipo: ${data?.op_type ?? "?"} · Ciudad: ${data?.city ?? "N/D"}`;
+
+      const resultado = data?.result ?? data?.resultado ?? "S/R";
+      const tipo      = data?.op_type ?? data?.operation_label ?? "?";
+      const ciudad    = data?.city ?? data?.ciudad ?? "N/D";
+
+      msg.textContent = `Listo ✅ Resultado: ${resultado} · Tipo: ${tipo} · Ciudad: ${ciudad}`;
     } catch (err) {
       msg.textContent = "Error: " + err.message;
     }
